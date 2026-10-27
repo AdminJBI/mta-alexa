@@ -78,8 +78,7 @@ def _fetch_feed(feed_name: str, max_age: int = 25):
 def next_arrivals(station: Station, now: float | None = None, limit: int = 3) -> dict:
     """Return {"N": [(line, minutes), ...], "S": [...]} sorted soonest first."""
     now = now or time.time()
-    wanted = set(station.lines)
-    feeds = {FEED_FOR_LINE[l] for l in wanted}
+    feeds = {FEED_FOR_LINE[l] for l in station.lines}
     arrivals = {"N": [], "S": []}
     for feed_name in feeds:
         feed = _fetch_feed(feed_name)
@@ -88,8 +87,9 @@ def next_arrivals(station: Station, now: float | None = None, limit: int = 3) ->
                 continue
             trip = entity.trip_update
             line = trip.trip.route_id
-            if line not in wanted:
-                continue
+            # Report ANY line the feed says stops here, not just the usual ones:
+            # at night and during service changes the A runs local and covers the
+            # C's stops (seen live 2026-10-26: A trains at Franklin, no C).
             for stu in trip.stop_time_update:
                 base, direction = stu.stop_id[:-1], stu.stop_id[-1]
                 if base not in station.stop_ids or direction not in arrivals:
@@ -137,7 +137,8 @@ def speak(station: Station, arrivals: dict, direction: str | None = None,
     line: answer about one line only ("C"), in the short form.
     mention_direction: say "toward Manhattan"; off when it's the default anyway.
     """
-    if line and line not in station.lines:
+    stopping_now = {l for trains in arrivals.values() for l, _ in trains}
+    if line and line not in station.lines and line not in stopping_now:
         return f"The {say_line(line)} doesn't stop at {station.name}."
     parts = []
     for d in ([direction] if direction else ["N", "S"]):
