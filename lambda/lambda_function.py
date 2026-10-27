@@ -54,6 +54,7 @@ else:
         sentences = []
         # Only say "toward Manhattan" when it isn't the everyday default.
         mention = direction_was_asked or direction != config.DEFAULT_DIRECTION
+        mta.prefetch([STATIONS[k] for k in station_keys])  # all feeds at once
         for key in station_keys:
             station = STATIONS[key]
             try:

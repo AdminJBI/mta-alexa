@@ -59,7 +59,19 @@ DIRECTION_WORDS = {
     "eastern_parkway": {"N": "Toward Manhattan", "S": "Toward Flatbush and New Lots"},
 }
 
-_cache = {}  # feed name -> (fetched_at, decoded feed)
+_cache = {}   # feed name -> (fetched_at, decoded feed)
+_failed = {}  # feed name -> (failed_at, error) so one request never waits twice
+
+# Alexa gives a skill about 8 seconds IN TOTAL, and a skill that has been asleep
+# spends 1-2 of them waking up. The old 8-second-per-feed timeout, run one feed
+# after another, could therefore outlast Alexa on a single slow MTA response,
+# and the user heard a failure instead of an answer. Feeds now download at the
+# same time (prefetch) with a short limit, so the worst case still leaves room
+# to say "I couldn't reach the MTA" out loud.
+FEED_TIMEOUT = (2.0, 2.5)   # seconds: (connect, read)
+FAIL_MEMORY_S = 15
+
+_session = requests.Session()   # keeps the connection open between requests
 
 
 def _fetch_feed(feed_name: str, max_age: int = 25):
@@ -67,12 +79,32 @@ def _fetch_feed(feed_name: str, max_age: int = 25):
     cached = _cache.get(feed_name)
     if cached and time.time() - cached[0] < max_age:
         return cached[1]
-    resp = requests.get(FEED_BASE + feed_name, timeout=8)
-    resp.raise_for_status()
-    feed = gtfs_realtime_pb2.FeedMessage()
-    feed.ParseFromString(resp.content)
+    failed = _failed.get(feed_name)
+    if failed and time.time() - failed[0] < FAIL_MEMORY_S:
+        raise failed[1]   # it just failed: don't spend Alexa's time trying again
+    try:
+        resp = _session.get(FEED_BASE + feed_name, timeout=FEED_TIMEOUT)
+        resp.raise_for_status()
+        feed = gtfs_realtime_pb2.FeedMessage()
+        feed.ParseFromString(resp.content)
+    except Exception as exc:
+        _failed[feed_name] = (time.time(), exc)
+        raise
+    _failed.pop(feed_name, None)
     _cache[feed_name] = (time.time(), feed)
     return feed
+
+
+def prefetch(stations) -> None:
+    """Download every feed these stations need, all at the same time."""
+    from concurrent.futures import ThreadPoolExecutor
+    names = sorted({FEED_FOR_LINE[l] for st in stations for l in st.lines})
+    with ThreadPoolExecutor(max_workers=len(names) or 1) as pool:
+        for fut in [pool.submit(_fetch_feed, n) for n in names]:
+            try:
+                fut.result()
+            except Exception as exc:
+                print(f"[train-times] prefetch failed: {exc!r}")
 
 
 # ── Only trust trains that are really there ─────────────────────────────────
