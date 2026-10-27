@@ -1,4 +1,4 @@
-# mta-alexa — "Alexa, open station board"
+# mta-alexa — "Alexa, open franklin board"
 
 A private Alexa skill that reads the MTA's live subway feed and says the next
 trains at Franklin Avenue and Nostrand Avenue in Brooklyn. No API key, no server,
