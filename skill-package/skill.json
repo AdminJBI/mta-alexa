@@ -1,0 +1,34 @@
+{
+  "manifest": {
+    "manifestVersion": "1.0",
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "Train Times",
+          "summary": "Next subway arrivals at Franklin Avenue and Nostrand Avenue, Brooklyn.",
+          "description": "Private skill. Reads the MTA's live feed and tells you the next trains at your two stations.",
+          "examplePhrases": [
+            "Alexa, open train times",
+            "Alexa, ask train times when's the next train at Franklin",
+            "Alexa, ask train times for Brooklyn bound trains at Nostrand"
+          ],
+          "keywords": ["subway", "mta", "brooklyn"]
+        }
+      },
+      "isAvailableWorldwide": false,
+      "distributionCountries": ["US"],
+      "testingInstructions": "Private, personal use only.",
+      "category": "PUBLIC_TRANSPORTATION"
+    },
+    "apis": {
+      "custom": {}
+    },
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false
+    }
+  }
+}

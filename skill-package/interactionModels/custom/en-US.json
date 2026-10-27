@@ -1,0 +1,60 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "train times",
+      "intents": [
+        {"name": "AMAZON.CancelIntent", "samples": []},
+        {"name": "AMAZON.HelpIntent", "samples": []},
+        {"name": "AMAZON.StopIntent", "samples": []},
+        {"name": "AMAZON.NavigateHomeIntent", "samples": []},
+        {"name": "AMAZON.FallbackIntent", "samples": []},
+        {
+          "name": "NextTrainIntent",
+          "slots": [
+            {"name": "station", "type": "StationType"},
+            {"name": "direction", "type": "DirectionType"}
+          ],
+          "samples": [
+            "when is the next train",
+            "when's the next train",
+            "next train",
+            "train times",
+            "the next train at {station}",
+            "when is the next train at {station}",
+            "when's the next train at {station}",
+            "next train at {station}",
+            "{station}",
+            "{station} trains",
+            "trains at {station}",
+            "next {direction} train",
+            "next {direction} train at {station}",
+            "when is the next {direction} train at {station}",
+            "when's the next {direction} train at {station}",
+            "{direction} trains at {station}",
+            "{direction} at {station}",
+            "{station} {direction}",
+            "what about {station}",
+            "how about {station}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "StationType",
+          "values": [
+            {"name": {"value": "franklin", "synonyms": ["franklin avenue", "franklin ave", "franklin av"]}},
+            {"name": {"value": "nostrand", "synonyms": ["nostrand avenue", "nostrand ave", "nostrand av"]}}
+          ]
+        },
+        {
+          "name": "DirectionType",
+          "values": [
+            {"name": {"value": "manhattan", "synonyms": ["manhattan bound", "uptown", "the city", "into the city", "northbound", "north"]}},
+            {"name": {"value": "brooklyn", "synonyms": ["brooklyn bound", "downtown", "southbound", "south", "outbound"]}},
+            {"name": {"value": "both", "synonyms": ["both ways", "either", "either way", "both directions"]}}
+          ]
+        }
+      ]
+    }
+  }
+}
