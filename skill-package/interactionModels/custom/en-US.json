@@ -3,16 +3,37 @@
     "languageModel": {
       "invocationName": "train times",
       "intents": [
-        {"name": "AMAZON.CancelIntent", "samples": []},
-        {"name": "AMAZON.HelpIntent", "samples": []},
-        {"name": "AMAZON.StopIntent", "samples": []},
-        {"name": "AMAZON.NavigateHomeIntent", "samples": []},
-        {"name": "AMAZON.FallbackIntent", "samples": []},
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
         {
           "name": "NextTrainIntent",
           "slots": [
-            {"name": "station", "type": "StationType"},
-            {"name": "direction", "type": "DirectionType"}
+            {
+              "name": "station",
+              "type": "StationType"
+            },
+            {
+              "name": "direction",
+              "type": "DirectionType"
+            }
           ],
           "samples": [
             "when is the next train",
@@ -42,16 +63,75 @@
         {
           "name": "StationType",
           "values": [
-            {"name": {"value": "franklin", "synonyms": ["franklin avenue", "franklin ave", "franklin av"]}},
-            {"name": {"value": "nostrand", "synonyms": ["nostrand avenue", "nostrand ave", "nostrand av"]}}
+            {
+              "name": {
+                "value": "franklin",
+                "synonyms": [
+                  "franklin avenue",
+                  "franklin ave",
+                  "franklin av"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "nostrand",
+                "synonyms": [
+                  "nostrand avenue",
+                  "nostrand ave",
+                  "nostrand av"
+                ]
+              }
+            }
           ]
         },
         {
           "name": "DirectionType",
           "values": [
-            {"name": {"value": "manhattan", "synonyms": ["manhattan bound", "uptown", "the city", "into the city", "northbound", "north"]}},
-            {"name": {"value": "brooklyn", "synonyms": ["brooklyn bound", "downtown", "southbound", "south", "outbound"]}},
-            {"name": {"value": "both", "synonyms": ["both ways", "either", "either way", "both directions"]}}
+            {
+              "name": {
+                "value": "manhattan",
+                "synonyms": [
+                  "manhattan bound",
+                  "uptown",
+                  "the city",
+                  "into the city",
+                  "northbound",
+                  "north",
+                  "to manhattan",
+                  "toward manhattan",
+                  "to the city"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "brooklyn",
+                "synonyms": [
+                  "brooklyn bound",
+                  "downtown",
+                  "southbound",
+                  "south",
+                  "outbound",
+                  "euclid",
+                  "euclid avenue",
+                  "toward euclid",
+                  "to euclid",
+                  "to euclid avenue"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "both",
+                "synonyms": [
+                  "both ways",
+                  "either",
+                  "either way",
+                  "both directions"
+                ]
+              }
+            }
           ]
         }
       ]

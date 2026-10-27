@@ -13,7 +13,7 @@ STATIONS = mta.STATIONS[config.CORRIDOR]
 
 DIRECTION_SLOT = {
     "manhattan": "N", "uptown": "N", "the city": "N", "northbound": "N",
-    "brooklyn": "S", "downtown": "S", "southbound": "S",
+    "brooklyn": "S", "downtown": "S", "southbound": "S", "euclid": "S", "euclid avenue": "S",
     "both": None, "both ways": None, "either": None,
 }
 STATION_SLOT = {

@@ -31,6 +31,7 @@ class Station:
     name: str          # how Alexa says it
     stop_ids: list     # MTA stop ids, without the N/S suffix
     lines: list        # which lines to report (feed is derived from these)
+    pair: str = ""     # which station pair this belongs to (set below)
 
 
 # The two Brooklyn station pairs that share these names.
@@ -45,9 +46,16 @@ STATIONS = {
     },
 }
 
+for _pair, _stations in STATIONS.items():
+    for _st in _stations.values():
+        _st.pair = _pair
+
 # In the MTA's feed, "N" means northbound, which on every Brooklyn line here
-# is the Manhattan-bound direction.
-DIRECTION_WORDS = {"N": "Manhattan-bound", "S": "Brooklyn-bound"}
+# is the direction toward Manhattan. How Alexa names each direction, per pair:
+DIRECTION_WORDS = {
+    "franklin_c_nostrand_a": {"N": "Toward Manhattan", "S": "Toward Euclid Avenue"},
+    "eastern_parkway": {"N": "Toward Manhattan", "S": "Toward Flatbush and New Lots"},
+}
 
 _cache = {}  # feed name -> (fetched_at, decoded feed)
 
@@ -108,9 +116,9 @@ def speak(station: Station, arrivals: dict, direction: str | None = None) -> str
     parts = []
     for d in ([direction] if direction else ["N", "S"]):
         trains = arrivals.get(d, [])
-        label = DIRECTION_WORDS[d]
+        label = DIRECTION_WORDS[station.pair][d]
         if not trains:
-            parts.append(f"No {label} trains are showing at {station.name} right now.")
+            parts.append(f"No trains {label.lower()} are showing at {station.name} right now.")
             continue
         words = []
         for line, mins in trains:
