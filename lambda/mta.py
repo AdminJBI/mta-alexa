@@ -76,13 +76,17 @@ def _fetch_feed(feed_name: str, max_age: int = 25):
 
 
 # ── Only trust trains that are really there ─────────────────────────────────
-# The MTA feed also lists trips that are only PLANNED: not yet assigned to a train,
-# not yet started, or with a position that is a projection rather than a sighting
-# (seen live 2026-10-26: a Far Rockaway A listed 11 minutes out whose "position"
-# was stamped 8 minutes in the future; Google Maps and the platform clock ignored
-# it). A train counts only if the MTA has a CURRENT position report for it.
-POSITION_MAX_AGE_S = 5 * 60   # older than this = the train has gone quiet
-POSITION_MAX_AHEAD_S = 60     # stamped further ahead than this = a projection
+# The MTA feed also lists trips that are only PLANNED: not yet assigned to a real
+# train, or not yet reporting a position (27 of 69 A/C/E trips at 10:18 PM on
+# 2026-10-26). A train counts only if the MTA has assigned it AND is reporting
+# where it is.
+#
+# Do NOT also require the position to be "not in the future" or to agree with the
+# train's list of upcoming stops. Both were tried on 2026-10-26 and both hid a REAL
+# Far Rockaway A: its stop list was stale and its position stamps ran ahead of the
+# clock, yet it stopped at Franklin at 10:28:40 exactly as predicted (tracked minute
+# by minute). Google Maps omitted that train too; it was wrong.
+POSITION_MAX_AGE_S = 10 * 60  # no position report for this long = gone quiet
 
 try:
     from google.protobuf.unknown_fields import UnknownFieldSet
@@ -123,32 +127,15 @@ def _nyct_assigned(trip_descriptor):
 
 
 def live_trip_ids(feed, now: float) -> set:
-    """Trip ids the MTA is tracking right now: assigned, with a current position
-    that agrees with the train's own list of upcoming stops."""
-    upcoming = {}
-    for entity in feed.entity:
-        if entity.HasField("trip_update"):
-            tu = entity.trip_update
-            upcoming[tu.trip.trip_id] = [s.stop_id for s in tu.stop_time_update]
+    """Trip ids the MTA has assigned to a real train that is reporting its position."""
     live = set()
     for entity in feed.entity:
         if not entity.HasField("vehicle"):
             continue
         v = entity.vehicle
-        if not v.timestamp:
-            continue
-        age = now - v.timestamp
-        if age > POSITION_MAX_AGE_S or age < -POSITION_MAX_AHEAD_S:
+        if not v.timestamp or now - v.timestamp > POSITION_MAX_AGE_S:
             continue
         if _nyct_assigned(v.trip) is False:
-            continue
-        # A real train is at (or just past) the FIRST stop it still has to make.
-        # One reported at a station further down its own upcoming list is a
-        # projection, not a sighting (seen live 2026-10-26: a Far Rockaway A
-        # whose next stop was Aqueduct but "positioned" at Kingston-Throop,
-        # predicted at Franklin 2 minutes later).
-        stops = upcoming.get(v.trip.trip_id, [])
-        if v.stop_id and v.stop_id in stops and stops.index(v.stop_id) > 1:
             continue
         live.add(v.trip.trip_id)
     return live
