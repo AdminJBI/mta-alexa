@@ -8,9 +8,9 @@
           "summary": "Next subway arrivals at Franklin Avenue and Nostrand Avenue, Brooklyn.",
           "description": "Private skill. Reads the MTA's live feed and tells you the next trains at your two stations.",
           "examplePhrases": [
-            "Alexa, open train times",
-            "Alexa, ask train times when's the C train at Franklin",
-            "Alexa, ask train times for the A train at Nostrand"
+            "Alexa, open station board",
+            "Alexa, ask station board when's the C train at Franklin",
+            "Alexa, ask station board for the A train at Nostrand"
           ],
           "keywords": [
             "subway",

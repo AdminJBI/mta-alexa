@@ -40,16 +40,21 @@ Words you'll see on Amazon's site:
 
 1. Click the **Test** tab at the top.
 2. In the dropdown that says "Off", choose **Development**.
-3. In the text box type `open train times` and press Enter. Alexa should answer
-   with the next trains. Try `ask train times when's the next train at nostrand`.
+3. In the text box type `open station board` and press Enter. Alexa should answer
+   with the next trains. Try `ask station board when's the A train at nostrand`.
 4. If it answers, you're done with the hard part. Your Echo already has the skill.
 
 ## Part 4 — Say it to the Echo
 
-- "Alexa, open train times"
-- "Alexa, ask train times when's the C train at Franklin"
-- "Alexa, ask train times when's the A train at Nostrand"
-- "Alexa, ask train times for the C train toward Euclid at Franklin"
+The skill's spoken name is **"station board"**, not "train times": Alexa's own
+built-in transit feature grabs anything that sounds like "train times" before a
+private skill ever sees it (found in testing 2026-10-26).
+
+
+- "Alexa, open station board"
+- "Alexa, ask station board when's the C train at Franklin"
+- "Alexa, ask station board when's the A train at Nostrand"
+- "Alexa, ask station board for the C train toward Euclid at Franklin"
 
 Add it to a routine (Alexa app → More → Routines) so it reads out automatically
 after your morning alarm or when you say "good morning".

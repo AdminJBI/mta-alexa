@@ -1,4 +1,4 @@
-"""Alexa skill: "Alexa, open train times" / "Alexa, ask train times when's the next train at Franklin".
+"""Alexa skill: "Alexa, open station board" / "Alexa, ask station board when's the next train at Franklin".
 
 Runs on Amazon's free Alexa-hosted service. Every request lands in `handler`.
 """
@@ -84,7 +84,7 @@ class HelpHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         speech = ("You can say: when's the C train at Franklin, "
                   "next train at Nostrand, trains toward Euclid at Nostrand, "
-                  "or just: train times. Which would you like?")
+                  "or just: station board. Which would you like?")
         return handler_input.response_builder.speak(speech).ask(speech).response
 
 

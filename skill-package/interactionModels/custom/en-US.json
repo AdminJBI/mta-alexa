@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "train times",
+      "invocationName": "station board",
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
