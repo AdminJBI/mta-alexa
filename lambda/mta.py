@@ -75,6 +75,71 @@ def _fetch_feed(feed_name: str, max_age: int = 25):
     return feed
 
 
+# ── Only trust trains that are really there ─────────────────────────────────
+# The MTA feed also lists trips that are only PLANNED: not yet assigned to a train,
+# not yet started, or with a position that is a projection rather than a sighting
+# (seen live 2026-10-26: a Far Rockaway A listed 11 minutes out whose "position"
+# was stamped 8 minutes in the future; Google Maps and the platform clock ignored
+# it). A train counts only if the MTA has a CURRENT position report for it.
+POSITION_MAX_AGE_S = 5 * 60   # older than this = the train has gone quiet
+POSITION_MAX_AHEAD_S = 60     # stamped further ahead than this = a projection
+
+try:
+    from google.protobuf.unknown_fields import UnknownFieldSet
+except ImportError:  # older protobuf: skip the assigned flag, keep the position test
+    UnknownFieldSet = None
+
+
+def _nyct_assigned(trip_descriptor):
+    """The MTA's own 'is this trip assigned to a real train' flag (extension 1001,
+    field 2). Returns True/False, or None when it can't be read."""
+    if UnknownFieldSet is None:
+        return None
+    try:
+        for f in UnknownFieldSet(trip_descriptor):
+            if f.field_number != 1001:
+                continue
+            data, i = f.data, 0
+            while i < len(data):
+                key = data[i]; i += 1
+                num, wire = key >> 3, key & 7
+                if wire == 0:
+                    val, shift = 0, 0
+                    while True:
+                        b = data[i]; i += 1
+                        val |= (b & 0x7F) << shift; shift += 7
+                        if not b & 0x80:
+                            break
+                    if num == 2:
+                        return bool(val)
+                elif wire == 2:
+                    ln = data[i]; i += 1 + ln
+                else:
+                    return None
+            return False   # extension present, no assigned flag = not assigned
+    except Exception:
+        return None
+    return None
+
+
+def live_trip_ids(feed, now: float) -> set:
+    """Trip ids the MTA is tracking right now: assigned, with a current position."""
+    live = set()
+    for entity in feed.entity:
+        if not entity.HasField("vehicle"):
+            continue
+        v = entity.vehicle
+        if not v.timestamp:
+            continue
+        age = now - v.timestamp
+        if age > POSITION_MAX_AGE_S or age < -POSITION_MAX_AHEAD_S:
+            continue
+        if _nyct_assigned(v.trip) is False:
+            continue
+        live.add(v.trip.trip_id)
+    return live
+
+
 def _min_minutes(station: Station) -> float:
     """The catchable-train cutoff for this station, from config (default 1 minute)."""
     try:
@@ -94,10 +159,13 @@ def next_arrivals(station: Station, now: float | None = None, limit: int = 3) ->
     arrivals = {"N": [], "S": []}
     for feed_name in feeds:
         feed = _fetch_feed(feed_name)
+        live = live_trip_ids(feed, now)
         for entity in feed.entity:
             if not entity.HasField("trip_update"):
                 continue
             trip = entity.trip_update
+            if trip.trip.trip_id not in live:
+                continue  # planned or untracked, not a train you can see coming
             line = trip.trip.route_id
             # Report ANY line the feed says stops here, not just the usual ones:
             # at night and during service changes the A runs local and covers the
