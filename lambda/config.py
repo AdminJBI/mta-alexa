@@ -1,9 +1,9 @@
 """Settings you can change without touching the rest of the code."""
 
-# Which pair of stations is yours:
-#   "fulton"          = Franklin Av (C + shuttle) and Nostrand Av (A, C) on Fulton St
-#   "eastern_parkway" = Franklin Av (2, 3, 4, 5) and Nostrand Av (3) on Eastern Parkway
-CORRIDOR = "fulton"
+# Which pair of stations is yours (both pairs are in Brooklyn, a mile apart):
+#   "franklin_c_nostrand_a" = Franklin Av (C train + shuttle) and Nostrand Av (A and C trains)
+#   "eastern_parkway"       = Franklin Av (2, 3, 4, 5) and Nostrand Av (3)
+CORRIDOR = "franklin_c_nostrand_a"
 
 # What "Alexa, open train times" reads out when you don't name a direction.
 #   "N" = Manhattan-bound only, "S" = Brooklyn-bound only, None = both

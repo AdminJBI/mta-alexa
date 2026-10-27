@@ -35,7 +35,7 @@ class Station:
 
 # The two Brooklyn station pairs that share these names.
 STATIONS = {
-    "fulton": {
+    "franklin_c_nostrand_a": {
         "franklin": Station("Franklin Avenue", ["A45", "S01"], ["C", "FS"]),
         "nostrand": Station("Nostrand Avenue", ["A46"], ["A", "C"]),
     },
