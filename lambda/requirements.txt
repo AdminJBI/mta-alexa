@@ -1,3 +1,6 @@
 ask-sdk-core==1.19.0
 gtfs-realtime-bindings==1.0.0
 requests==2.32.3
+# Alexa-hosted Python 3.8 runs on a system with OpenSSL 1.0.2; urllib3 2.x refuses
+# to import there and crashes the whole skill. Stay on the 1.26 line.
+urllib3<2
