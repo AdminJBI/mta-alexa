@@ -123,7 +123,13 @@ def _nyct_assigned(trip_descriptor):
 
 
 def live_trip_ids(feed, now: float) -> set:
-    """Trip ids the MTA is tracking right now: assigned, with a current position."""
+    """Trip ids the MTA is tracking right now: assigned, with a current position
+    that agrees with the train's own list of upcoming stops."""
+    upcoming = {}
+    for entity in feed.entity:
+        if entity.HasField("trip_update"):
+            tu = entity.trip_update
+            upcoming[tu.trip.trip_id] = [s.stop_id for s in tu.stop_time_update]
     live = set()
     for entity in feed.entity:
         if not entity.HasField("vehicle"):
@@ -135,6 +141,14 @@ def live_trip_ids(feed, now: float) -> set:
         if age > POSITION_MAX_AGE_S or age < -POSITION_MAX_AHEAD_S:
             continue
         if _nyct_assigned(v.trip) is False:
+            continue
+        # A real train is at (or just past) the FIRST stop it still has to make.
+        # One reported at a station further down its own upcoming list is a
+        # projection, not a sighting (seen live 2026-10-26: a Far Rockaway A
+        # whose next stop was Aqueduct but "positioned" at Kingston-Throop,
+        # predicted at Franklin 2 minutes later).
+        stops = upcoming.get(v.trip.trip_id, [])
+        if v.stop_id and v.stop_id in stops and stops.index(v.stop_id) > 1:
             continue
         live.add(v.trip.trip_id)
     return live
