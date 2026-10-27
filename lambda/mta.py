@@ -198,15 +198,8 @@ def _when(mins: int) -> str:
 
 
 def _times(trains) -> str:
-    """"C train in 3 minutes, then 11 minutes" / "A train in 2 minutes, then C train in 5 minutes"."""
-    same_line = len({l for l, _ in trains}) == 1
-    pieces = []
-    for i, (line, mins) in enumerate(trains):
-        if i == 0 or not same_line:
-            pieces.append(f"{say_line(line)} {_when(mins)}")
-        else:
-            pieces.append(_when(mins) if mins == 0 else f"{mins} minute{'s' if mins != 1 else ''}")
-    return ", then ".join(pieces)
+    """"A train in 3 minutes, then C train in 11 minutes": every train names its line."""
+    return ", then ".join(f"{say_line(line)} {_when(mins)}" for line, mins in trains)
 
 
 def speak(station: Station, arrivals: dict, direction: str | None = None,
@@ -230,8 +223,7 @@ def speak(station: Station, arrivals: dict, direction: str | None = None,
             parts.append(f"No {what}{toward} are showing at {station.name} right now.")
         elif line:
             first, rest = trains[0], trains[1:]
-            more = (", then " + ", then ".join(
-                _when(m).replace("in ", "", 1) if m else "now" for _, m in rest)) if rest else ""
+            more = "".join(f", then another {_when(m)}" for _, m in rest)
             first_when = "arriving now" if first[1] == 0 else _when(first[1])
             parts.append(f"The next {say_line(line)}{toward} at {station.name} is {first_when}{more}.")
         else:
