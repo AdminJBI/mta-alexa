@@ -40,24 +40,39 @@ Words you'll see on Amazon's site:
 
 1. Click the **Test** tab at the top.
 2. In the dropdown that says "Off", choose **Development**.
-3. In the text box type `open franklin board` and press Enter. Alexa should answer
+3. In the text box type `launch the franklin board skill` and press Enter. Alexa should answer
    with the next trains. Try `ask franklin board when's the A train at nostrand`.
 4. If it answers, you're done with the hard part. Your Echo already has the skill.
 
 ## Part 4 — Say it to the Echo
 
 The skill's spoken name is **"franklin board"**. Two earlier names failed in
-testing (2026-10-26): Alexa's built-in transit feature grabs "train times", and its
-radio feature grabs anything with "station" in it, before a private skill is heard.
+testing: Alexa's built-in transit feature grabs "train times", and its radio
+feature grabs anything with "station" in it.
 
+**What works (tested 2026-10-26 in Amazon's simulator, which runs Alexa+):**
 
-- "Alexa, open franklin board"
-- "Alexa, ask franklin board when's the C train at Franklin"
-- "Alexa, ask franklin board when's the A train at Nostrand"
-- "Alexa, ask franklin board for the C train toward Euclid at Franklin"
+- "Alexa, launch the franklin board skill" → *"Franklin Avenue: A train in 3
+  minutes, then 16 minutes. Nostrand Avenue: A train in 2 minutes, then 15
+  minutes."* Two Manhattan-bound trains per station, whatever line is running.
 
-Add it to a routine (Alexa app → More → Routines) so it reads out automatically
-after your morning alarm or when you say "good morning".
+**What Alexa+ does NOT pass through:** "open franklin board" and "ask franklin
+board when's the C train…". Alexa+ answers those itself ("I can't open a Franklin
+board"). Saying the word **"skill"** is what makes it hand over. Even then it runs
+the summary and drops a specific question. On an Echo still on the classic Alexa,
+"Alexa, ask franklin board when's the C train at Franklin" should give the short
+single-line answer; that path is tested in code but not on a classic device.
+
+### The shortcut: a Routine
+
+Alexa app → **More** → **Routines** → **+**
+
+1. **When this happens** → **Voice** → `when's the train` (or `when's the C train`).
+2. **Alexa will** → **Customized** → `launch the franklin board skill`.
+3. Save.
+
+Now "Alexa, when's the train?" reads both stations. You can also add it to a
+morning routine so it plays after your alarm.
 
 ---
 
