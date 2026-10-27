@@ -14,3 +14,9 @@ DEFAULT_STATIONS = ["franklin", "nostrand"]
 
 # How many upcoming trains to read per direction.
 TRAINS_TO_READ = 2
+
+# Skip trains you can't catch. A train less than this many minutes away is
+# already at the platform or pulling in, so Alexa doesn't mention it. Set it to
+# your walking time to the station to only hear trains you can actually make.
+# (A "now" train seen live 2026-10-26 was standing at the platform, doors closing.)
+HIDE_TRAINS_UNDER_MINUTES = {"franklin": 1, "nostrand": 1}

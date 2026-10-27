@@ -75,9 +75,21 @@ def _fetch_feed(feed_name: str, max_age: int = 25):
     return feed
 
 
+def _min_minutes(station: Station) -> float:
+    """The catchable-train cutoff for this station, from config (default 1 minute)."""
+    try:
+        import config
+        table = getattr(config, "HIDE_TRAINS_UNDER_MINUTES", {})
+    except ImportError:
+        table = {}
+    key = "franklin" if "Franklin" in station.name else "nostrand" if "Nostrand" in station.name else ""
+    return float(table.get(key, 1))
+
+
 def next_arrivals(station: Station, now: float | None = None, limit: int = 3) -> dict:
     """Return {"N": [(line, minutes), ...], "S": [...]} sorted soonest first."""
     now = now or time.time()
+    min_minutes = _min_minutes(station)
     feeds = {FEED_FOR_LINE[l] for l in station.lines}
     arrivals = {"N": [], "S": []}
     for feed_name in feeds:
@@ -100,9 +112,9 @@ def next_arrivals(station: Station, now: float | None = None, limit: int = 3) ->
                 if not t:
                     continue
                 minutes = (t - now) / 60
-                if minutes < -0.5:
-                    continue  # already left
-                arrivals[direction].append((line, max(0, round(minutes))))
+                if minutes < min_minutes:
+                    continue  # already left, or too close to catch
+                arrivals[direction].append((line, round(minutes)))
     for d in arrivals:
         arrivals[d] = sorted(arrivals[d], key=lambda x: x[1])[:limit]
     return arrivals
