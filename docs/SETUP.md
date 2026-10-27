@@ -47,9 +47,9 @@ Words you'll see on Amazon's site:
 ## Part 4 — Say it to the Echo
 
 - "Alexa, open train times"
-- "Alexa, ask train times when's the next train at Franklin"
-- "Alexa, ask train times for Brooklyn-bound trains at Nostrand"
-- "Alexa, ask train times both ways at Franklin"
+- "Alexa, ask train times when's the C train at Franklin"
+- "Alexa, ask train times when's the A train at Nostrand"
+- "Alexa, ask train times for the C train toward Euclid at Franklin"
 
 Add it to a routine (Alexa app → More → Routines) so it reads out automatically
 after your morning alarm or when you say "good morning".

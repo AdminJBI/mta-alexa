@@ -107,26 +107,51 @@ def next_arrivals(station: Station, now: float | None = None, limit: int = 3) ->
 
 
 def say_line(line: str) -> str:
-    """How Alexa should pronounce a line name, as in "<this> in 4 minutes"."""
+    """How Alexa names a line, as in "<this> in 4 minutes"."""
     return {"FS": "shuttle to Prospect Park"}.get(line, f"{line} train")
 
 
-def speak(station: Station, arrivals: dict, direction: str | None = None) -> str:
-    """Turn arrivals into one spoken sentence."""
+def _when(mins: int) -> str:
+    return "now" if mins == 0 else f"in {mins} minute{'s' if mins != 1 else ''}"
+
+
+def _times(trains) -> str:
+    """"C train in 3 minutes, then 11 minutes" / "A train in 2 minutes, then C train in 5 minutes"."""
+    same_line = len({l for l, _ in trains}) == 1
+    pieces = []
+    for i, (line, mins) in enumerate(trains):
+        if i == 0 or not same_line:
+            pieces.append(f"{say_line(line)} {_when(mins)}")
+        else:
+            pieces.append(_when(mins) if mins == 0 else f"{mins} minute{'s' if mins != 1 else ''}")
+    return ", then ".join(pieces)
+
+
+def speak(station: Station, arrivals: dict, direction: str | None = None,
+          line: str | None = None, mention_direction: bool = True, limit: int = 2) -> str:
+    """Turn arrivals into speech.
+
+    direction: "N", "S" or None for both.
+    line: answer about one line only ("C"), in the short form.
+    mention_direction: say "toward Manhattan"; off when it's the default anyway.
+    """
+    if line and line not in station.lines:
+        return f"The {say_line(line)} doesn't stop at {station.name}."
     parts = []
     for d in ([direction] if direction else ["N", "S"]):
-        trains = arrivals.get(d, [])
         label = DIRECTION_WORDS[station.pair][d]
+        toward = f" {label.lower()}" if mention_direction else ""
+        trains = [t for t in arrivals.get(d, []) if not line or t[0] == line][:limit]
         if not trains:
-            parts.append(f"No trains {label.lower()} are showing at {station.name} right now.")
-            continue
-        words = []
-        for line, mins in trains:
-            when = "now" if mins == 0 else f"in {mins} minute{'s' if mins != 1 else ''}"
-            words.append(f"{say_line(line)} {when}")
-        if len(words) > 1:
-            listed = ", ".join(words[:-1]) + f", and {words[-1]}"
+            what = f"{say_line(line)}s" if line else "trains"
+            parts.append(f"No {what}{toward} are showing at {station.name} right now.")
+        elif line:
+            first, rest = trains[0], trains[1:]
+            more = (", then " + ", then ".join(
+                _when(m).replace("in ", "", 1) if m else "now" for _, m in rest)) if rest else ""
+            first_when = "arriving now" if first[1] == 0 else _when(first[1])
+            parts.append(f"The next {say_line(line)}{toward} at {station.name} is {first_when}{more}.")
         else:
-            listed = words[0]
-        parts.append(f"{label} at {station.name}: {listed}.")
+            where = f"{label} at {station.name}" if mention_direction else station.name
+            parts.append(f"{where}: {_times(trains)}.")
     return " ".join(parts)

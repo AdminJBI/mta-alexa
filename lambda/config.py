@@ -13,4 +13,4 @@ DEFAULT_DIRECTION = "N"
 DEFAULT_STATIONS = ["franklin", "nostrand"]
 
 # How many upcoming trains to read per direction.
-TRAINS_TO_READ = 3
+TRAINS_TO_READ = 2

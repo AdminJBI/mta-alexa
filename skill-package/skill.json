@@ -9,14 +9,20 @@
           "description": "Private skill. Reads the MTA's live feed and tells you the next trains at your two stations.",
           "examplePhrases": [
             "Alexa, open train times",
-            "Alexa, ask train times when's the next train at Franklin",
-            "Alexa, ask train times for Brooklyn bound trains at Nostrand"
+            "Alexa, ask train times when's the C train at Franklin",
+            "Alexa, ask train times for the A train at Nostrand"
           ],
-          "keywords": ["subway", "mta", "brooklyn"]
+          "keywords": [
+            "subway",
+            "mta",
+            "brooklyn"
+          ]
         }
       },
       "isAvailableWorldwide": false,
-      "distributionCountries": ["US"],
+      "distributionCountries": [
+        "US"
+      ],
       "testingInstructions": "Private, personal use only.",
       "category": "PUBLIC_TRANSPORTATION"
     },

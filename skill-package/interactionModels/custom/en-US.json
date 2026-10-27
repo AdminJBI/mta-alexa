@@ -33,6 +33,10 @@
             {
               "name": "direction",
               "type": "DirectionType"
+            },
+            {
+              "name": "line",
+              "type": "LineType"
             }
           ],
           "samples": [
@@ -55,7 +59,26 @@
             "{direction} at {station}",
             "{station} {direction}",
             "what about {station}",
-            "how about {station}"
+            "how about {station}",
+            "when's the {line} train",
+            "when's the {line} train at {station}",
+            "when is the {line} train at {station}",
+            "when's the next {line} train at {station}",
+            "when's the next {line} at {station}",
+            "when's the {line} at {station}",
+            "next {line} train at {station}",
+            "next {line} at {station}",
+            "{line} train at {station}",
+            "{line} at {station}",
+            "the {line} at {station}",
+            "the {line} train at {station}",
+            "next {line} train",
+            "next {line}",
+            "{line} train",
+            "when's the {line} train {direction} at {station}",
+            "next {line} train {direction} at {station}",
+            "{line} train {direction} at {station}",
+            "when's the {line} train at {station} {direction}"
           ]
         }
       ],
@@ -129,6 +152,43 @@
                   "either",
                   "either way",
                   "both directions"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LineType",
+          "values": [
+            {
+              "name": {
+                "value": "C",
+                "synonyms": [
+                  "c train",
+                  "the c",
+                  "see",
+                  "sea"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "A",
+                "synonyms": [
+                  "a train",
+                  "the a",
+                  "eh"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "shuttle",
+                "synonyms": [
+                  "the shuttle",
+                  "franklin shuttle",
+                  "s train",
+                  "s"
                 ]
               }
             }

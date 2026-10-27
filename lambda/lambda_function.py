@@ -16,24 +16,33 @@ DIRECTION_SLOT = {
     "brooklyn": "S", "downtown": "S", "southbound": "S", "euclid": "S", "euclid avenue": "S",
     "both": None, "both ways": None, "either": None,
 }
+LINE_SLOT = {
+    "a": "A", "a train": "A", "the a": "A", "eh": "A", "hey": "A",
+    "c": "C", "c train": "C", "the c": "C", "see": "C", "sea": "C",
+    "shuttle": "FS", "the shuttle": "FS", "franklin shuttle": "FS", "s": "FS", "s train": "FS",
+    "2": "2", "two": "2", "3": "3", "three": "3", "4": "4", "four": "4", "5": "5", "five": "5",
+}
 STATION_SLOT = {
     "franklin": "franklin", "franklin avenue": "franklin", "franklin ave": "franklin",
     "nostrand": "nostrand", "nostrand avenue": "nostrand", "nostrand ave": "nostrand",
 }
 
 
-def _report(station_keys, direction):
+def _report(station_keys, direction, line=None, direction_was_asked=False):
     """Build the spoken answer for one or more stations."""
     sentences = []
+    # Only say "toward Manhattan" when it isn't the everyday default.
+    mention = direction_was_asked or direction != config.DEFAULT_DIRECTION
     for key in station_keys:
         station = STATIONS[key]
         try:
-            arrivals = mta.next_arrivals(station, limit=config.TRAINS_TO_READ)
+            arrivals = mta.next_arrivals(station, limit=12)
         except Exception as exc:  # feed down, timeout, etc.
             print(f"[train-times] feed error for {key}: {exc!r}")
             sentences.append(f"I couldn't reach the MTA feed for {station.name} just now.")
             continue
-        sentences.append(mta.speak(station, arrivals, direction))
+        sentences.append(mta.speak(station, arrivals, direction, line=line,
+                                   mention_direction=mention, limit=config.TRAINS_TO_READ))
     return " ".join(sentences)
 
 
@@ -53,12 +62,18 @@ class NextTrainHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         station_word = (get_slot_value(handler_input, "station") or "").lower().strip()
         direction_word = (get_slot_value(handler_input, "direction") or "").lower().strip()
+        line_word = (get_slot_value(handler_input, "line") or "").lower().strip()
         station_key = STATION_SLOT.get(station_word)
-        direction = DIRECTION_SLOT.get(direction_word, config.DEFAULT_DIRECTION) if direction_word else config.DEFAULT_DIRECTION
-        if direction_word and direction_word not in DIRECTION_SLOT:
-            direction = config.DEFAULT_DIRECTION
+        direction_known = direction_word in DIRECTION_SLOT
+        direction = DIRECTION_SLOT[direction_word] if direction_known else config.DEFAULT_DIRECTION
+        line = LINE_SLOT.get(line_word) or LINE_SLOT.get(line_word.replace(" train", "").replace("the ", ""))
+        if line_word and not line:
+            print(f"[train-times] unknown line word: {line_word!r}")
         stations = [station_key] if station_key else config.DEFAULT_STATIONS
-        speech = _report(stations, direction)
+        if line and not station_key:
+            # "when's the C train" with no station: answer for the stations that have it.
+            stations = [k for k in config.DEFAULT_STATIONS if line in STATIONS[k].lines] or stations
+        speech = _report(stations, direction, line=line, direction_was_asked=direction_known)
         return handler_input.response_builder.speak(speech).set_should_end_session(True).response
 
 
@@ -67,9 +82,9 @@ class HelpHandler(AbstractRequestHandler):
         return is_intent_name("AMAZON.HelpIntent")(handler_input)
 
     def handle(self, handler_input):
-        speech = ("You can say: when's the next train at Franklin, "
-                  "next Brooklyn-bound train at Nostrand, or just: train times. "
-                  "Which would you like?")
+        speech = ("You can say: when's the C train at Franklin, "
+                  "next train at Nostrand, trains toward Euclid at Nostrand, "
+                  "or just: train times. Which would you like?")
         return handler_input.response_builder.speak(speech).ask(speech).response
 
 
@@ -89,7 +104,7 @@ class FallbackHandler(AbstractRequestHandler):
         return is_intent_name("AMAZON.FallbackIntent")(handler_input)
 
     def handle(self, handler_input):
-        speech = "Sorry, I didn't get that. Try: when's the next train at Franklin?"
+        speech = "Sorry, I didn't get that. Try: when's the C train at Franklin?"
         return handler_input.response_builder.speak(speech).ask(speech).response
 
 
