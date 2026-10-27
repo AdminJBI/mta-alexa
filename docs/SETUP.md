@@ -74,6 +74,21 @@ Alexa app → **More** → **Routines** → **+**
 Now "Alexa, when's the train?" reads both stations. You can also add it to a
 morning routine so it plays after your alarm.
 
+**The phrase has to match.** A Routine fires only on its own words. Anything
+close but different goes to Alexa+, which answers by itself ("I can't look up
+real-time train times") and never opens the skill. Seen in the voice history on
+2026-10-27: "What time is the train?", "When's the train coming?" and "When's
+the train time?" all missed the `when's the train` Routine. Two more traps:
+- A Routine does not fire as a follow-up inside a conversation you already
+  started (asking the train right after "temperature" without saying "Alexa"
+  again). Start fresh with "Alexa, …".
+- Alexa+'s own transit answer is not this skill. It picks the station it
+  thinks is nearest and does not have live times.
+
+Fix: make one extra Routine for each way you naturally ask, all with the same
+**Alexa will** step. Check what Alexa heard in the Alexa app → **More** →
+**Activity** (or amazon.com → Review Alexa History).
+
 ---
 
 ## Changing how it behaves
