@@ -144,3 +144,7 @@ else:
         sb.add_request_handler(h)
     sb.add_exception_handler(CatchAll())
     handler = sb.lambda_handler()
+
+
+# Alexa-hosted Python looks for this exact name (lambda_function.lambda_handler).
+lambda_handler = handler
