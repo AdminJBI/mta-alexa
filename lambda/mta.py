@@ -4,6 +4,8 @@ No API key is needed. The MTA publishes one feed per group of lines, refreshed
 every 30 seconds, in Google's GTFS-Realtime format (a compact binary that the
 gtfs-realtime-bindings library decodes).
 """
+from __future__ import annotations
+
 import time
 from dataclasses import dataclass
 
